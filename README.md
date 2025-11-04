@@ -1,0 +1,1 @@
+A Flutter project that keeps track of student attendance!
