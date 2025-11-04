@@ -303,7 +303,7 @@ class _LoginSignupPageState extends State<LoginSignupPage>
                     const SizedBox(height: 24),
                     // Terms / footer
                     Text(
-                      'By continuing, you agree to our Terms & Privacy Policy.',
+                      'By continuing, you agree to our Terms & Privacy Policy (which does not exist yet).',
                       style: text.bodySmall?.copyWith(
                         color: Colors.white.withValues(alpha: .9),
                       ),
