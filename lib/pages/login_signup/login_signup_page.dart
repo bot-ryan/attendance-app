@@ -64,17 +64,13 @@ class _LoginSignupPageState extends State<LoginSignupPage>
                     // Logo / Brand
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSll_6fAcb6Vcm66MnuYZUizrlD1QUs7vaP2w&s',
+                      child: Image.asset(
+                        'assets/images/Realfun_Logo.png',
                         width: 120,
                         height: 110,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const SizedBox(
-                          width: 120,
-                          height: 110,
-                          child: ColoredBox(color: Colors.white),
-                        ),
                       ),
+
                     ),
                     const SizedBox(height: 16),
                     // Wordmark placeholder
