@@ -43,27 +43,42 @@ class LoginSignupPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  /// Prebuilt email/password login + signup + forgot password
-                  SupaEmailAuth(
-                    // For mobile deep link callback if you use email confirmations.
-                    // For basic setups / dev, leaving this as-is is fine.
-                    redirectTo: kIsWeb ? null : 'io.realfun.attendance://callback',
+                 SupaEmailAuth(
+                  redirectTo: kIsWeb ? null : 'io.realfun.attendance://callback',
 
-                    onSignInComplete: (response) {
-                      // Auth state changes -> GoRouter listener will auto-redirect.
-                      // You can show a small message if you want:
+                  onSignInComplete: (response) {
+                    // AuthResponse: has session + user
+                    final user = response.user;
+                    if (user != null) {
+                      debugPrint('🟢 SIGN IN OK: ${user.email}');
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Signed in successfully')),
+                        SnackBar(content: Text('Signed in as ${user.email}')),
                       );
-                    },
-                    onSignUpComplete: (response) {
+                      // Your GoRouter is already listening to auth state, so it will redirect.
+                    } else {
+                      // Usually means something went wrong; SupaEmailAuth should have shown an error in the form.
+                      debugPrint('🔴 SIGN IN: no user returned.');
+                    }
+                  },
+
+                  onSignUpComplete: (response) {
+                    // Depending on supabase_auth_ui version this is typically a UserResponse.
+                    final user = response.user;
+                    if (user != null) {
+                      debugPrint('🟢 SIGN UP OK: ${user.email} (id: ${user.id})');
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Account created. Check your email if confirmation is required.'),
                         ),
                       );
-                    },
-                  ),
+                    } else {
+                      // If email confirmation is enabled, user might be pending; UI will usually say what happened.
+                      debugPrint('🔴 SIGN UP: no user returned (check Supabase Auth settings & UI message).');
+                    }
+                  },
+                ),
+
+
 
                   const SizedBox(height: 16),
 
