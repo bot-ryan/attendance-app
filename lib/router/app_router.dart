@@ -1,84 +1,65 @@
-import 'dart:async';
+// app_router.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:async';
+
 
 import '../pages/home/home_page.dart';
 import '../pages/login_signup/login_signup_page.dart';
 
-/// Central place to define all routes.
-/// Includes Supabase auth integration for auto redirect.
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/login',
 
-    // Rebuild router whenever auth state changes
+    // Rebuild router when auth state changes (login/logout)
     refreshListenable: GoRouterRefreshStream(
       Supabase.instance.client.auth.onAuthStateChange,
     ),
 
-    // Redirect logic based on current Supabase session
     redirect: (context, state) {
       final session = Supabase.instance.client.auth.currentSession;
-      final bool isLoggedIn = session != null;
-      final bool isLoggingIn = state.matchedLocation == '/login';
+      final loggingIn = state.matchedLocation == '/login';
 
-      // Not logged in → force login page
-      if (!isLoggedIn && !isLoggingIn) {
+      // not logged in → force to /login
+      if (session == null && !loggingIn) {
         return '/login';
       }
 
-      // Logged in → block access to login page
-      if (isLoggedIn && isLoggingIn) {
+      // logged in but on /login → send to /home
+      if (session != null && loggingIn) {
         return '/home';
       }
 
-      // Otherwise stay where you are
+      // no change
       return null;
     },
 
-    // Define routes
     routes: [
       GoRoute(
-        path: '/home',
-        name: AppRouteNames.home,
-        builder: (context, state) => const HomePage(),
-      ),
-      GoRoute(
         path: '/login',
-        name: AppRouteNames.login,
+        name: 'login',
         builder: (context, state) => const LoginSignupPage(),
       ),
-    ],
-
-    // Optional: Simple 404 page
-    errorPageBuilder: (context, state) => MaterialPage(
-      child: Scaffold(
-        body: Center(child: Text('Page not found: ${state.uri}')),
+      GoRoute(
+        path: '/home',
+        name: 'home',
+        builder: (context, state) => const HomePage(),
       ),
-    ),
+    ],
   );
 }
 
-/// Centralized route names to avoid typos.
-abstract class AppRouteNames {
-  static const home = 'home';
-  static const login = 'login';
-}
-
-/// Helper: notifies GoRouter when the Supabase auth stream changes.
+/// Tiny helper so go_router reacts to auth changes
 class GoRouterRefreshStream extends ChangeNotifier {
-  GoRouterRefreshStream(Stream<AuthState> stream) {
-    _subscription = stream.listen((_) {
-      notifyListeners();
-    });
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    _sub = stream.listen((_) => notifyListeners());
   }
-
-  late final StreamSubscription<AuthState> _subscription;
+  late final StreamSubscription _sub;
 
   @override
   void dispose() {
-    _subscription.cancel();
+    _sub.cancel();
     super.dispose();
   }
 }
