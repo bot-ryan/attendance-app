@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:go_router/go_router.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -61,6 +64,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         elevation: 2,
         title: const Text('Classes', style: TextStyle(color: Colors.white)),
         actions: [
+
+        // Logout button
+        TextButton(
+          onPressed: () async {
+            final router = GoRouter.of(context); // capture before await
+            await Supabase.instance.client.auth.signOut();
+            router.go('/login');
+          },
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white, // text color
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+          ),
+          child: const Text(
+            'Log Out',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+
+
           // UI-only create button (shows always for now)
           Padding(
             padding: const EdgeInsets.only(right: 12),
